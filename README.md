@@ -7,4 +7,5 @@ The REST Bomber is a high-level intelligent tool for performing REST APIs stress
 ### How do I get set up? ###
 
 * Dependencies:
- ** apache-commons-io-2.4.jar, json-simple-1.1.1.jar
+    * apache-commons-io-2.4
+    * json-simple-1.1.1
