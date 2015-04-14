@@ -1,24 +1,18 @@
 package com.despectra.restbomber;
 
-import javafx.util.Pair;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.*;
 import java.util.function.DoubleUnaryOperator;
 
 /**
 * Created by dmitry on 3/16/15.
 */
-public abstract class Bomber implements Runnable {
+public abstract class Bomber implements Runnable, Cloneable {
 
-    private int mRequestsCount;
-    private long mMinPause;
-    private long mMaxPause;
-    private DoubleUnaryOperator mEasing;
-    private final List<EventModel> mEventsList;
+    protected int mRequestsCount;
+    protected long mMinPause;
+    protected long mMaxPause;
+    protected DoubleUnaryOperator mEasing;
+    protected List<EventModel> mEventsList;
 
     public Bomber(List<EventModel> eventsList,
                   int requestsCount,
@@ -59,4 +53,12 @@ public abstract class Bomber implements Runnable {
             }
         }
     }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        Bomber absClone = (Bomber) super.clone();
+        return setupSpecificClone(absClone);
+    }
+
+    protected abstract Bomber setupSpecificClone(Bomber absClone);
 }

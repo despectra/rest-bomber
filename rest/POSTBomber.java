@@ -1,5 +1,6 @@
 package com.despectra.restbomber.rest;
 
+import com.despectra.restbomber.Bomber;
 import com.despectra.restbomber.EventModel;
 import com.despectra.restbomber.IdsStore;
 import com.despectra.restbomber.RandomDataGenerator;
@@ -61,6 +62,7 @@ public class POSTBomber extends RestBomber {
 
             event.setEndTime(System.currentTimeMillis());
             event.setProperty("method", "POST");
+            event.setProperty("path", mRawEntityPath);
             event.setProperty("bytes read", bytesRead);
             conn.disconnect();
 
@@ -72,6 +74,12 @@ public class POSTBomber extends RestBomber {
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected Bomber setupSpecificClone(Bomber absClone) {
+        ((POSTBomber)absClone).mBodyBuilder = new StringBuilder();
+        return absClone;
     }
 
     public String generateUrlencodedBody() {

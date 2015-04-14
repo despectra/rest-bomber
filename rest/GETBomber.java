@@ -1,5 +1,6 @@
 package com.despectra.restbomber.rest;
 
+import com.despectra.restbomber.Bomber;
 import com.despectra.restbomber.EventModel;
 import com.despectra.restbomber.IdsStore;
 import com.despectra.restbomber.Utils;
@@ -38,10 +39,16 @@ public class GETBomber extends RestBomber {
             stream.close();
             event.setEndTime(System.currentTimeMillis());
             event.setProperty("method", "GET");
+            event.setProperty("path", mRawEntityPath);
             event.setProperty("bytes read", bytesRead);
             conn.disconnect();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected Bomber setupSpecificClone(Bomber absClone) {
+        return absClone;
     }
 }

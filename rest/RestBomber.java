@@ -21,6 +21,7 @@ public abstract class RestBomber extends Bomber {
 
     protected IdsStore mStore;
     protected String mHost;
+    protected String mRawEntityPath;
     protected List<String> mUsingEntities;
     protected String mMainEntity;
     protected EntityPathType mPathType;
@@ -31,12 +32,13 @@ public abstract class RestBomber extends Bomber {
         super(eventsList, requestsCount, minPause, maxPause, easingFunc);
         mStore = store;
         mHost = host;
+        mRawEntityPath = entityPath;
         mUsingEntities = new LinkedList<>();
-        parseEntityPath(entityPath);
+        parseEntityPath();
     }
 
-    private void parseEntityPath(String entityPath) {
-        String[] levels = entityPath.split("/");
+    private void parseEntityPath() {
+        String[] levels = mRawEntityPath.split("/");
 
         String curEntity = "";
         boolean wasEntity = false;
@@ -93,10 +95,5 @@ public abstract class RestBomber extends Bomber {
 
     public List<String> getUsingEntities() {
         return mUsingEntities;
-    }
-
-    @Override
-    protected void doRequest() {
-
     }
 }
