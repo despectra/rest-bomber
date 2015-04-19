@@ -18,8 +18,13 @@ public class Main {
 
         List<EventModel> responsesEvents = new LinkedList<>();
         IdsStore store = new IdsStore();
-        store.addBucket("users", new IdsBucket());
-        store.addBucket("groups", new IdsBucket());
+        IdsBucket usersBucket = new IdsBucket();
+        System.out.println("Preloading ids for users...");
+        Utils.preloadIds(URL_STR + "users", usersBucket);
+        System.out.println("Preloading completed. " + usersBucket.getSize() + " users");
+        System.exit(0);
+        store.addBucket("users", usersBucket);
+        //store.addBucket("groups", new IdsBucket());
 
         Bomber reader = new GETBomber(responsesEvents, 40, 50, 50, x -> 1, URL_STR, "users/#", store);
         Bomber writer = new POSTBomber(responsesEvents, 10, 500, 500, x -> 1, URL_STR, "users/", store,  "first_name", "last_name", "email");

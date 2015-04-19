@@ -48,4 +48,8 @@ public class IdsBucket {
         return id;
     }
 
+    public int getSize() {
+        return mIds.size();
+    }
+
 }

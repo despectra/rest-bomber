@@ -1,9 +1,14 @@
 package com.despectra.restbomber;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import org.apache.commons.io.IOUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -38,4 +43,30 @@ public class Utils {
         }
     }
 
+    public static void preloadIds(String resourceUrl, IdsBucket bucket) {
+        URL url = null;
+        try {
+            url = new URL(resourceUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setDoInput(true);
+            conn.connect();
+
+            InputStream stream = conn.getInputStream();
+            StringWriter responseWriter = new StringWriter();
+            IOUtils.copy(stream, responseWriter, "UTF-8");
+            conn.disconnect();
+
+            JSONParser parser = new JSONParser();
+            JSONArray entities = (JSONArray) parser.parse(responseWriter.toString());
+            for(int i = 0; i < entities.size(); i++) {
+                JSONObject item = (JSONObject) entities.get(i);
+                long id = (long) item.get("id");
+                bucket.putId(id);
+            }
+
+        } catch (IOException | ParseException e) {
+            System.out.println("PANIC!!: " + e.getMessage() + " while executing preloading ids from " + url.toString());
+        }
+    }
 }
