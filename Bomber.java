@@ -42,6 +42,7 @@ public abstract class Bomber implements Runnable, Cloneable {
         long pause;
         for(int i = 0; i < mRequestsCount; i++) {
             doRequest();
+            Utils.increaseRequestsCounter();
             try {
                 pause = (long) (mEasing.applyAsDouble(i / (double)mRequestsCount) * (mMaxPause - mMinPause)) + mMinPause;
                 if(pause > 10) {

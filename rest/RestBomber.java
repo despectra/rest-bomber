@@ -76,11 +76,11 @@ public abstract class RestBomber extends Bomber {
             pathBuilder.append(entity);
             pathBuilder.append("/");
             pathBuilder.append(curBucket.getRandomId());
-            pathBuilder.append("/");
+            //pathBuilder.append("/");
         }
         if(mPathType == EntityPathType.List) {
-            pathBuilder.append(mMainEntity);
             pathBuilder.append("/");
+            pathBuilder.append(mMainEntity);
         }
         return  pathBuilder.toString();
     }

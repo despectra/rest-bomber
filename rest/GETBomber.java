@@ -26,8 +26,9 @@ public class GETBomber extends RestBomber {
 
     @Override
     protected void doRequest() {
+        URL url = null;
         try {
-            URL url = new URL(generateRequestUrl());
+            url = new URL(generateRequestUrl());
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -43,7 +44,7 @@ public class GETBomber extends RestBomber {
             event.setProperty("bytes read", bytesRead);
             conn.disconnect();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("PANIC!!: " + e.getMessage() + " while executing GET " + url.toString());
         }
     }
 

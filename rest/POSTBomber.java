@@ -1,9 +1,6 @@
 package com.despectra.restbomber.rest;
 
-import com.despectra.restbomber.Bomber;
-import com.despectra.restbomber.EventModel;
-import com.despectra.restbomber.IdsStore;
-import com.despectra.restbomber.RandomDataGenerator;
+import com.despectra.restbomber.*;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -23,7 +20,6 @@ import java.util.function.DoubleUnaryOperator;
 public class POSTBomber extends RestBomber {
 
     private List<String> mEntityPropsNames;
-    private RandomDataGenerator mRandGenerator;
     private StringBuilder mBodyBuilder;
 
     public POSTBomber(List<EventModel> eventsList,
@@ -35,27 +31,30 @@ public class POSTBomber extends RestBomber {
             throw new IllegalArgumentException("POST requests URLs should relate only to entities list (NOT a single one, like ../entity/#/");
         }
         mEntityPropsNames = Arrays.asList(entityPropsNames);
-        mRandGenerator = new RandomDataGenerator();
         mBodyBuilder = new StringBuilder();
     }
 
     @Override
     protected void doRequest() {
+        URL url = null;
+        String body = null;
         try {
-            URL url = new URL(generateRequestUrl());
+            url = new URL(generateRequestUrl());
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setDoInput(true);
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             OutputStreamWriter osWriter = new OutputStreamWriter(conn.getOutputStream(), "UTF-8");
-            osWriter.write(generateUrlencodedBody());
+            body = generateUrlencodedBody();
+            osWriter.write(body);
             osWriter.close();
             EventModel event = startEvent();
 
             conn.connect();
             StringWriter responseWriter = new StringWriter();
-            InputStream is = conn.getInputStream();
+            InputStream is = null;
+            is = conn.getInputStream();
             IOUtils.copy(is, responseWriter, "UTF-8");
             int bytesRead = responseWriter.getBuffer().length() * 2;
             is.close();
@@ -72,7 +71,7 @@ public class POSTBomber extends RestBomber {
             mStore.getBucket(mMainEntity).putId(id);
 
         } catch (IOException | ParseException e) {
-            e.printStackTrace();
+            System.out.println("PANIC!!: " + e.getMessage() + " while executing POST " + url.toString() + ": " + body);
         }
     }
 
@@ -87,7 +86,7 @@ public class POSTBomber extends RestBomber {
         for (String propName : mEntityPropsNames) {
             mBodyBuilder.append(propName);
             mBodyBuilder.append("=");
-            mBodyBuilder.append(mRandGenerator.generateString(7, 15));
+            mBodyBuilder.append(Utils.RANDOM_STRINGS.get((int)(Math.random() * (Utils.RANDOM_STRINGS.size() - 1))));
             mBodyBuilder.append("&");
         }
         mBodyBuilder.deleteCharAt(mBodyBuilder.toString().length() - 1);

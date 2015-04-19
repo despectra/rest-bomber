@@ -21,7 +21,7 @@ public class RandomDataGenerator {
     }
 
     public String generateString(int length) {
-        mBuilder.delete(0, mBuilder.toString().length());
+        mBuilder.delete(0, mBuilder.toString().length() - 1);
         for(int i = 0; i < length; i++) {
             mBuilder.append(CHARS.charAt(mRandom.nextInt(CHARS.length())));
         }

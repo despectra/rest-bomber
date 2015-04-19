@@ -11,38 +11,44 @@ public class Main {
     public static final String URL_STR = "http://localhost:3000/";
 
     public static void main(String[] args) {
-        runMain();
+        runMain(args);
     }
 
-    public static void runMain() {
+    public static void runMain(String[] args) {
+
         List<EventModel> responsesEvents = new LinkedList<>();
         IdsStore store = new IdsStore();
         store.addBucket("users", new IdsBucket());
         store.addBucket("groups", new IdsBucket());
 
+        Bomber reader = new GETBomber(responsesEvents, 40, 50, 50, x -> 1, URL_STR, "users/#", store);
+        Bomber writer = new POSTBomber(responsesEvents, 10, 500, 500, x -> 1, URL_STR, "users/", store,  "first_name", "last_name", "email");
+
         TestingScenario scenario = new TestingScenario.Builder()
-                .addBombers("user_writers",
-                        new POSTBomber(responsesEvents, 100, 50, 1000, x -> 1 - x, URL_STR, "users/", store,
+                .addBombers("user_readers", reader, 500)
+                .addBombers("user_writers", writer, 100)
+                /*.addBombers("user_writers",
+                        new POSTBomber(responsesEvents, 15, 10, 10, x -> 1, URL_STR, "users/", store,
                                 "first_name", "last_name", "email"),
                         10)
                 .addBombers("group_writers",
-                        new POSTBomber(responsesEvents, 10, 50, 1000, x -> 1 - x, URL_STR, "groups/", store,
+                        new POSTBomber(responsesEvents, 10, 10, 10, x -> 1, URL_STR, "groups/", store,
                                 "establishment_date", "description"),
                         10)
                 .addBombers("attachers",
-                        new GETBomber(responsesEvents, 100, 30, 500, x -> 1 - x, URL_STR, "groups/#/users/#/attach", store),
+                        new GETBomber(responsesEvents, 100, 30, 500, x -> 1, URL_STR, "groups/#/users/#/attach", store),
                         100)
                 .addBombers("related_readers",
-                        new GETBomber(responsesEvents, 100, 10, 500, x -> 1 - x, URL_STR, "groups/#/users", store),
-                        500)
+                        new GETBomber(responsesEvents, 100, 10, 500, x -> 1, URL_STR, "groups/#/users", store),
+                        500)*/
                 .build();
 
-        System.out.println("Started");
+        System.out.println("Started " + new Date().toString());
         long globalStartTime = System.currentTimeMillis();
         scenario.startTesting();
         scenario.waitForFinish();
 
-        System.out.println("Bombing completed. Writing results...");
+        System.out.println("\nBombing completed. Writing results...");
         Collections.sort(responsesEvents, (EventModel e1, EventModel e2) -> ((Long)e1.getStartTime()).compareTo(e2.getStartTime()));
         FileWriter responsesWriter = null;
         try {
@@ -66,10 +72,10 @@ public class Main {
             responsesWriter.flush();
             responsesWriter.close();
 
-            System.out.println("Done");
-            //Runtime r = Runtime.getRuntime();
-            //r.exec("gnuplot -persist behav_graph.plot").waitFor();
-        } catch (IOException e) {
+            System.out.println("Done " + new Date().toString());
+            Runtime r = Runtime.getRuntime();
+            r.exec("./visualize.sh Node_mysql_single_bigpool").waitFor();
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         } finally {
             if(responsesWriter != null) {
