@@ -48,10 +48,25 @@ public class TestingScenario {
             mScenario = new TestingScenario();
         }
 
-        public Builder addBombers(String groupName, Bomber prototype, int amount) {
+        /**
+         * Adds a set of bombers into scenario
+         * @param groupName name of the obmbers group
+         * @param prototype initial prototype of all bombers in the group
+         * @param amount of bombers
+         * @param delay pause before start
+         * @param incrementalDelay if true - increases delay for each bomber (delay[i+1] = delay[i] + delay)
+         * @return builder to continue building
+         */
+        public Builder addBombers(String groupName, Bomber prototype, int amount, long delay, boolean incrementalDelay) {
+            long delayAccum = 0;
             try {
                 for(int i = 0; i < amount; i++) {
-                    mScenario.addBomberInGroup(groupName, (Bomber) prototype.clone());
+                    Bomber clonedBomber = (Bomber) prototype.clone();
+                    clonedBomber.setDelay(incrementalDelay ? delayAccum + delay : delay);
+                    if(incrementalDelay) {
+                        delayAccum += delay;
+                    }
+                    mScenario.addBomberInGroup(groupName, clonedBomber);
                 }
             } catch (CloneNotSupportedException e) {}
             return this;

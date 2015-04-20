@@ -34,14 +34,36 @@ public class Utils {
         }
     }
 
-
+    public static int BOMBERS_COUNT = 0;
     public static int REQUESTS_COUNTER = 0;
+
     public static synchronized void increaseRequestsCounter() {
         REQUESTS_COUNTER++;
         if(REQUESTS_COUNTER % 500 == 0) {
             System.out.print("\r    " + REQUESTS_COUNTER + " requests done");
         }
     }
+
+    public static synchronized void increaseBombersCount(List<EventModel> countEventsList) {
+        BOMBERS_COUNT++;
+        if(countEventsList != null) {
+            registerBombersCountChangedEvent(countEventsList);
+        }
+    }
+
+    public static synchronized void decreaseBombersCount(List<EventModel> countEventsList) {
+        BOMBERS_COUNT--;
+        if(countEventsList != null) {
+            registerBombersCountChangedEvent(countEventsList);
+        }
+    }
+
+    private static void registerBombersCountChangedEvent(List<EventModel> countEventsList) {
+        EventModel event = EventModel.createLastingEvent(System.currentTimeMillis());
+        event.setProperty("count", BOMBERS_COUNT);
+        countEventsList.add(event);
+    }
+
 
     public static void preloadIds(String resourceUrl, IdsBucket bucket) {
         URL url = null;

@@ -14,6 +14,10 @@ public abstract class Bomber implements Runnable, Cloneable {
     protected DoubleUnaryOperator mEasing;
     protected List<EventModel> mEventsList;
 
+    private long mStartDelay;
+    private OnStartedListener mStartedListener;
+    private OnFinishedListener mFinishedListener;
+
     public Bomber(List<EventModel> eventsList,
                   int requestsCount,
                   long minPause,
@@ -24,6 +28,21 @@ public abstract class Bomber implements Runnable, Cloneable {
         mMaxPause = maxPause;
         mEasing = easingFunc;
         mEventsList = eventsList;
+        mStartDelay = 0;
+    }
+
+    public void setDelay(long delayms) {
+        if(delayms > 0) {
+            mStartDelay = delayms;
+        }
+    }
+
+    public void setOnStartedListener(OnStartedListener listener) {
+        mStartedListener = listener;
+    }
+
+    public void setOnFinishedListener(OnFinishedListener listener) {
+        mFinishedListener = listener;
     }
 
     protected EventModel startEvent() {
@@ -40,6 +59,17 @@ public abstract class Bomber implements Runnable, Cloneable {
     @Override
     public void run() {
         long pause;
+        //sleep if delay is setup
+        try {
+            Thread.sleep(mStartDelay);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        //THEN DO THE BOMBING
+        //notify start
+        if (mStartedListener != null) {
+            mStartedListener.onStarted();
+        }
         for(int i = 0; i < mRequestsCount; i++) {
             doRequest();
             Utils.increaseRequestsCounter();
@@ -53,6 +83,10 @@ public abstract class Bomber implements Runnable, Cloneable {
                 break;
             }
         }
+        //notify finish
+        if (mFinishedListener != null) {
+            mFinishedListener.onFinished();
+        }
     }
 
     @Override
@@ -62,4 +96,12 @@ public abstract class Bomber implements Runnable, Cloneable {
     }
 
     protected abstract Bomber setupSpecificClone(Bomber absClone);
+
+    public interface OnStartedListener {
+        void onStarted();
+    }
+
+    public interface OnFinishedListener {
+        void onFinished();
+    }
 }
